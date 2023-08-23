@@ -5,10 +5,9 @@
 @Created on: 2023/08/23 10:47
 @Description: 
 """
-from typing import List
 
 """
-1.变量命名原则：
+变量命名原则：
     1.遵循PEP8原则
         - 应该用 4 个空格缩进，每行不超过 79 个字符
         - 蛇形命名法，比如 max_value，常量大写：MAX_VALUE
@@ -37,7 +36,7 @@ from typing import List
         - 数组索引三剑客 i、j、k
     
 
-2.注释基础知识
+注释基础知识
     '''人
     :param name: 姓名
     :param age: 年龄
@@ -52,19 +51,22 @@ from typing import List
     3.不要弄错接口注释的受众 ---给使用者看，如何使用以及注意事项
 
 
-3.编程建议
+编程建议
     1.保持变量一致性（名字一致性、类型一致性）
     2.变量尽量靠近使用
     3.定义临时变量提升可读性
-    4.同一作用域内不要有太多变量，对局部变量分组并建模
+    4.同一作用域内不要有太多变量，解决办法：提炼数据类、拆分函数
     5.能不定义变量就别定义
-    6.不要使用 locals()，Python 之禅：显式优于隐式
+    6.显式优于隐式：不要使用 locals() 批量获取变量
     7.空行也是一种“注释”，增强代码可读性
     8.先写注释，后写代码
     
     ! 在写出一句有说服力的接口注释前，别写任何函数代码。
 """
 
+# 1.代码可读性优化
+
+from typing import List
 
 def magic_bubble_sort(numbers: List[int]):
     """
@@ -94,7 +96,8 @@ def magic_bubble_sort(numbers: List[int]):
     return numbers
 
 
-# 3.4 同一作用域内不要有太多变量，对局部变量分组并建模
+# 2.同一作用域内不要有太多变量，对局部变量分组并建模
+
 class ImportedSummary:
     """保存导入结果摘要数据类"""
 
