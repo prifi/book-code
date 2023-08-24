@@ -22,13 +22,15 @@
         - str.partition(sep)
         - str.translate(s.maketrans(',.', '，。'))  # 一次性替换多个字符
     2.字符串和字节串
-        str.encode(codec) 计算机层 bytes二进制字符串
-        str.decode(codec) 人类层 str普通字符串
-    3.改善长字符串可读性，使用(), \, 多行缩进使用模块 textwrap.dedent() 
+        - str.encode(codec) 计算机层 bytes二进制字符串
+        - str.decode(codec) 人类层 str普通字符串
+    3.改善字符串可读性
+        - 使用 Enum 增强可读性
+        - 使用 Jinja2 模板处理字符串
+        - 使用(), \, 使用模块 textwrap.dedent() 处理多行缩进
 """
 
 # 1.使用枚举增强代码可读性与健壮性
-
 from enum import Enum
 
 # 在定义枚举类型时，如果同时继承一些基础类型，比如 int、str,
@@ -39,10 +41,12 @@ class UserType(int, Enum):
     # 黑名单用户
     BANNED = 13
 
+
 # 用户每日奖励积分数量
 DAILY_POINTS_REWARDS = 100
 # VIP 用户每日额外奖励积分数量
 VIP_EXTRA_POINTS = 20
+
 
 def add_daily_points(user):
     """用户每天完成第一次登录后，为其增加积分"""
@@ -56,13 +60,12 @@ def add_daily_points(user):
 
 
 # 2.使用 sqlalchemy 模块，代替SQL语句拼接
-
 def fetch_users_v2(
-    conn,
-    min_level=None,
-    gender=None,
-    has_membership=False,
-    sort_field="created",
+        conn,
+        min_level=None,
+        gender=None,
+        has_membership=False,
+        sort_field="created",
 ):
     """获取用户列表"""
     query = select([users.c.id, users.c.name])
@@ -75,8 +78,7 @@ def fetch_users_v2(
 
 
 # 3.使用 Jinja2 模板处理字符串
-
-# from jinja2 import Template
+from jinja2 import Template
 
 _MOVIES_TMPL = '''\
 Welcome, {{username}}.
@@ -92,26 +94,24 @@ def render_movies_j2(username, movies):
 
 
 # 4.使用特殊数字：“无穷大” 排序
-
 def sort_users_inf(users):
     def key_func(username):
         age = users[username]
         # 当年龄为空时，返回正无穷大作为 key，因此就会被排到最后
         return age if age is not None else float('inf')
+
     return sorted(users.keys(), key=key_func)
 
 
-# 4.改善超长字符串的可读性
-
+# 5.改善超长字符串的可读性
 s = ("This is the first line of a long string, "
-"this is the second line")
+     "this is the second line")
 
 s = "This is the first line of a long string, " \
-"this is the second line"
+    "this is the second line"
 
 
-# 5.多级缩进里出现多行字符串
-
+# 6.多级缩进里出现多行字符串
 from textwrap import dedent
 
 message = dedent("""\
@@ -119,4 +119,3 @@ Welcome, today's movie list:
     - Jaw (1975)
     - The Shining (1980)
     - Saw (2004)""")
-

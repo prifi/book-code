@@ -8,12 +8,12 @@
 
 """
 列表、元组、字典、集合
-    - 可变（mutable）：列表、字典、集合。
-    - 不可变（immutable）：整数、浮点数、字符串、字节串、元组
+    1.可变（mutable）：列表、字典、集合。
+    2.不可变（immutable）：整数、浮点数、字符串、字节串、元组
     
     ! Python 在进行函数调用传参时，采用的既不是值传递，也不是引用传递，而是传递了“变量所指对象的引用”  +=
     
-    - 深拷贝与浅拷贝 import copy
+    3.深拷贝与浅拷贝 import copy
         浅拷贝：
             - copy.copy(nums)
             - nums.copy()
@@ -23,21 +23,26 @@
         深拷贝：[1, ['foo', 'bar'], 2, 3]
             - copy.deepcopy(items)
     
-    - 使用字典、集合判断成员是否存在效率高 in notin O(1)
-    - 不要编写过于复杂的推导式，用朴实的代码替代就好
+    4.使用字典、集合判断成员是否存在效率高 in notin O(1)
+    5.不要编写过于复杂的推导式，用朴实的代码替代就好
+    6.用按需返回替代容器，生成器 generator
     
-列表：
+列表
     1.有序可变
     2.头部插入 collections.deque
     3.不要在遍历列表时同时修改
 
-元组：
+元组
     1.有序不可变
     2.具名元组，比用普通数字（rect[0]）更易读、更好记
         from collections import namedtuple
         rect = Rectangle(width=100, height=20)  # rect[0]、rect.width
-
-字典：
+    3.让函数返回 NameTuple，便于后续扩展
+        from typing import NamedTuple
+        class Address(NamedTuple):
+            country: str
+        # addr.country
+字典
     1.录入序可变，key可哈希，唯一性
         from collections import OrderedDict # 无序的OrderedDict相比返回False, 无序dict返回True
     2.常用操作：
@@ -47,7 +52,7 @@
     3.快速合并字典 d3 = {**d1, **d2}
     4.不要在遍历字典时同时删除key
     
-集合：
+集合
     1.无序可变，key可哈希，去重
     2.集合运算：
         & s1.intersection(s2)
@@ -57,11 +62,10 @@
 """
 
 # 1.分析网站访问日志
-
-# 格式：请求路径 请求耗时（毫秒）
-    #/articles/three-tips-on-writing-file-related-codes/ 120
-    #/articles/15-thinking-in-edge-cases/ 400
-    #/admin/ 3275
+    # 格式：请求路径 请求耗时（毫秒）
+    # /articles/three-tips-on-writing-file-related-codes/ 120
+    # /articles/15-thinking-in-edge-cases/ 400
+    # /admin/ 3275
 
 # a.版本1
 from enum import Enum
@@ -91,7 +95,7 @@ def analyze_v1():
 
             # 如果路径第一次出现，存入初始值
             # if path not in path_groups:
-                # path_groups[path] = {}
+            # path_groups[path] = {}
             path_groups.setdefault(path, {})
 
             # 如果性能 level 第一次出现，存入初始值 1
@@ -112,7 +116,10 @@ def analyze_v1():
         for level_name, count in sorted_items:
             print(f'        - {level_name}: {count}')
 
-# b.当字典键不存在时，使用 defaultdict 可以简化处理; 继承 MutableMapping 可以方便地创建自定义字典类，封装处理逻辑
+# b.版本2
+    # - 当字典键不存在时，使用 defaultdict 可以简化处理; defaultdict(int) => key不存在不报错，调用int() => 0
+    # - 继承 MutableMapping 可以方便地创建自定义字典类，封装处理逻辑
+
 from collections import defaultdict
 from collections.abc import MutableMapping
 
@@ -167,6 +174,7 @@ class PerfLevelDict(MutableMapping):
         return sum(self.values())
         # return sum(self.data.values())
 
+
 """
 # 测试：
 >>> d = PerfLevelDict()
@@ -178,13 +186,14 @@ class PerfLevelDict(MutableMapping):
 <PagePerfLevel.LT_1000: 'Between 300 ms and 1 s'>: 12}
 """
 
+
 def analyze_v2():
-    path_groups = defaultdict(PerfLevelDict)
+    path_groups = defaultdict(PerfLevelDict)  # 这句是关键，理解 defaultdict 模块用法
     with open('test_log.txt', 'r') as fp:
         for line in fp:
             path, time_cost_str = line.strip().split()
 
-            # 如果path不存在，生成新字典 path_greous[path] = PerfLevelDict()
+            # 如果key(path)不存在，生成新字典 path_greous[path] = PerfLevelDict()
             path_groups[path][time_cost_str] += 1
 
         for path, result in path_groups.items():
@@ -199,7 +208,6 @@ analyze_v2()
 
 
 # 2.使用生成器按需返回，更灵活，也更省内存
-
 def generate_even(max_number):
     """一个简单生成器，返回 0 到 max_number 之间的所有偶数"""
     for i in range(0, max_number):
@@ -211,7 +219,6 @@ for i in generate_even(10):
 
 
 # 3.让函数返回 NamedTuple，增加返回值修改属性即可，便于扩展
-
 from typing import NamedTuple
 
 class Address(NamedTuple):
@@ -222,9 +229,9 @@ class Address(NamedTuple):
 
 def latlon_to_address(lat, lon):
     return Address(
-        country = country,
-        province = province,
-        city = city
+        country=country,
+        province=province,
+        city=city
     )
 
 addr = latlon_to_address(lat, lon)

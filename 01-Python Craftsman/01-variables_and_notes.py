@@ -7,7 +7,7 @@
 """
 
 """
-变量命名原则：
+变量命名原则
     1.遵循PEP8原则
         - 应该用 4 个空格缩进，每行不超过 79 个字符
         - 蛇形命名法，比如 max_value，常量大写：MAX_VALUE
@@ -30,7 +30,7 @@
             - length/count 开头或结尾：max_length, length_of_username, users_count
             
             ! 不要用名词复数表示int类型，apples、trips容易与容器对象List(Apple)混淆，建议使用number_of_apples, trips_count复合词
-        
+    
         - 其他类型 ---建议使用变量注解
     5.超短命名
         - 数组索引三剑客 i、j、k
@@ -65,7 +65,6 @@
 """
 
 # 1.代码可读性优化
-
 from typing import List
 
 def magic_bubble_sort(numbers: List[int]):
@@ -78,7 +77,7 @@ def magic_bubble_sort(numbers: List[int]):
     stop_position = len(numbers) - 1
     while stop_position > 0:
         for i in range(stop_position):
-            current, next_ = numbers[i], numbers[i+1]
+            current, next_ = numbers[i], numbers[i + 1]
             current_is_even, next_is_even = current % 2 == 0, next_ % 2 == 0
             shoud_swap = False
 
@@ -91,19 +90,19 @@ def magic_bubble_sort(numbers: List[int]):
                 shoud_swap = True
 
             if shoud_swap:
-                numbers[i], numbers[i+1] =  numbers[i+1], numbers[i]
+                numbers[i], numbers[i + 1] = numbers[i + 1], numbers[i]
         stop_position -= 1
     return numbers
 
 
 # 2.同一作用域内不要有太多变量，对局部变量分组并建模
-
 class ImportedSummary:
     """保存导入结果摘要数据类"""
 
     def __init__(self):
         self.succeeded_count = 0
         self.failed_count = 0
+
 
 class ImportingUserGroup:
     """用户暂存用户导入的数据类"""
@@ -112,6 +111,7 @@ class ImportingUserGroup:
         self.duplicated = []
         self.banned = []
         self.normal = []
+
 
 def import_users_from_file(fp):
     """
@@ -129,5 +129,3 @@ def import_users_from_file(fp):
     #  ... 读取 import_user_group，写入数据库并修改成功与失败的数量
 
     return summary.succeeded_count, summary.failed_count
-
-
