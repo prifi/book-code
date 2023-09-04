@@ -29,7 +29,7 @@
         - 不捕获异常，让异常往堆栈上层走
         “除非有意静默，否则不要无故忽视异常。”
     2.不要手动做数据校验，专业的数据校验模块：pydantic 库校验
-        from pydantic import BaseMode
+        from pydantic import BaseModel
         class NumberInput(BaseModel):
             # 使用类型注解 conint 定义 number 属性的取值范围
             number: conint(ge=0, le=100)

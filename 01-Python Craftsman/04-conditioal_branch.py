@@ -71,7 +71,7 @@ def get_sorted_movies(movies, sorting_type):
         # sorting_type: (key_func, reverse)
         'name': (lambda movie: movie.name.lower(), False),
         'rating': (lambda movie: movie.rating, True),
-        'year': (lambda movie: movie.name, True),
+        'year': (lambda movie: movie.year, True),
         'random': (lambda movie: random.random(), False)
     }
     try:
@@ -98,5 +98,5 @@ def create_or_update():
         email=user.email,
         age=user.age,
         address=user.address,
-        **extra_args,
+        **extra_args,  # 使用字典扩展方式
     )
