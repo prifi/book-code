@@ -126,6 +126,9 @@ class PostsWriter:
             self.fp.write(f'> 地址：{post.link}\n')
             self.fp.write('------\n')
 
+
+# a.继承：通过继承改造
+
 class HNTopPostsSpider:
     """抓取 Hacker News Top 内容条目
 
@@ -155,25 +158,109 @@ class HNTopPostsSpider:
             points_text = node_detail.xpath('.//span[@class="score"]/text()')
             commnets_text = node_detail.xpath('.//td/span/a[last()]/text()')[0]
 
-            # 只关注 GitHhub 内容
-            node_link = node_title.get('href')
-            parsed_link = parse.urlparse(node_link)
-            if parsed_link.netloc == 'github.com':
-                counter += 1
-                yield Post(
-                    title=node_title.text,
-                    link=parsed_link,
-                    points=points_text[0].split()[0] if points_text else '0',
-                    comments_cnt=commnets_text.split()[0]
-                )
+            # 案例：只关注 GitHhub 内容
+            # node_link = node_title.get('href')
+            # parsed_link = parse.urlparse(node_link)
+            # if parsed_link.netloc == 'github.com':
+            #     counter += 1
+            #     yield Post(
+            #         title=node_title.text,
+            #         link=parsed_link,
+            #         points=points_text[0].split()[0] if points_text else '0',
+            #         comments_cnt=commnets_text.split()[0]
+            #     )
 
+            post = Post(
+                title=node_title.text,
+                link=node_title.get('href'),
+                points=points_text[0].split()[0] if points_text else '0',
+                comments_cnt=commnets_text.split()[0]
+            )
+
+            if self.interested_in_post(post):
+                counter += 1
+                yield post
+
+    # 需要被继承修改
+    def interested_in_post(self, post: Post) -> bool:
+        """判断是否应该将帖子加入结果集中"""
+        return True
+
+# 创建过滤子类
+class GithubOnlyHNTopPostsSpider(HNTopPostsSpider):
+    """只关心来自 GitHub 的内容"""
+
+    def interested_in_post(self, post: Post) -> bool:
+        parsed_link = parse.urlparse(post.link)
+        return parsed_link.netloc == 'github.com'
+
+# 执行
 def get_hn_top_posts(fp: Optional[TextIO] = None):
     """获取 Hacker News Top 内容，并将其写入文件中
     :param fp: 需要写入的文件，如未提供，将向标准输出打印
     """
     dest_fp = fp or sys.stdout
-    crawler = HNTopPostsSpider()
+    # crawler = HNTopPostsSpider()
+    crawler = GithubOnlyHNTopPostsSpider()  # a.继承新的子类
     writer = PostsWriter(dest_fp, title='Top news on HN')
     writer.write(list(crawler.fetch()))
 
 get_hn_top_posts()
+
+
+# b.依赖注入：创建过滤类
+class DefaultPostFilter:
+    """默认保留所有帖子"""
+
+    def validate(self, post: Post) -> bool:
+        return True
+
+class GithubPostFilter:
+    """保留 Github 帖子"""
+
+    def validate(self, post: Post) -> bool:
+        parsed_link = parse.urlparse(post.link)
+        return parsed_link.netloc == 'github.com'
+
+class HNTopPostsSpider:
+    """抓取 Hacker News Top 内容条目
+    :param limit: 限制条目数，默认为 5
+    :param post_filter: 过滤结果条目的算法，默认保留所有
+    """
+
+    items_url = 'https://news.ycombinator.com/'
+
+    def __init__(self, limit: int = 5, post_filter = None):
+        self.limit = limit
+        self.post_filter = post_filter or DefaultPostFilter()
+
+    def fetch(self) -> Iterable[Post]:
+        """从 Hacker New 抓取 Top 内容
+
+        :return: 可迭代的 Post 对象
+        """
+        counter = 0
+        resp = requests.get(self.items_url)
+        html = etree.HTML(resp.text)
+        items = html.xpath('//table//tr[@class="athing"]')
+        for item in items:
+            if counter >= self.limit:
+                break
+            node_title = item.xpath('./td[@class="title"]/span/a')[0]
+            node_detail = item.getnext()  # 获取下一个兄弟 tr 节点
+            points_text = node_detail.xpath('.//span[@class="score"]/text()')
+            commnets_text = node_detail.xpath('.//td/span/a[last()]/text()')[0]
+            post = Post(
+                title=node_title.text,
+                link=node_title.get('href'),
+                points=points_text[0].split()[0] if points_text else '0',
+                comments_cnt=commnets_text.split()[0]
+            )
+            # 重写依赖注入过滤器
+            if self.post_filter.validate(post):
+                counter += 1
+                yield post
+
+# 执行
+crawler = HNTopPostsSpider()
+crawler = HNTopPostsSpider(post_filter=GithubPostFilter())
