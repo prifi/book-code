@@ -10,20 +10,26 @@ from urllib import parse
 """
 SOLID
     SRP：单一职责原则
-    OCP：开放–关闭原则
+    OCP：开放关闭原则  ---上两个针对 类和函数
+    LSP: 里式替换原则  ---下三个仅针对 类
+    ISP: 接口隔离原则
+    DIP: 依赖倒置原则
 
 SRP：单一职责原则
-    - 一个类只应该有一种被修改的原因 ---大类拆分小类
+    - 一个类(函数)只应该有一种被修改的原因 ---优化思路：大类拆分小类
     - 频繁修改，导致不同功能之间互相影响  ---逃避God Class
 
 OCP：开放–关闭原则
-    - 类应该对扩展(行为)开放，对修改封闭 ---继承、依赖注入和数据驱动
-        sorted(l, key=lambda i: i % 3)
+    
+    sorted(l, key=lambda i: i % 3)
+    
+    类应该对扩展(行为)开放，对修改封闭 ---优化思路：继承、依赖注入和数据驱动
+    
     - 继承：找到父类中不稳定、会变动的内容。将这部分变化封装成方法（或属性），子类才能通过继承重写这部分行为
-        GithubOnlyHNTopPostsSpider()
+        GithubOnlyHNTopPostsSpider(HNTopPostsSpider)
     - 依赖注入：依赖注入抽离的通常是类
         HNTopPostsSpider(post_filter=GithubPostFilter()) 
-    - 数据驱动：数据驱动抽离的是纯粹的数据，它的可定制性不如上面两种方式（假设新需求：保留以 .net 结尾过滤）
+    - 数据驱动：数据驱动抽离的是纯粹的数据；它的可定制性不如上面两种方式（假设新需求：保留以 .net 结尾过滤）
         hosts = ['github.com']
         HNTopPostsSpider(filter_by_hosts=hosts)
 """
@@ -103,7 +109,7 @@ class HNTopPostsSpider:
 crawler = HNTopPostsSpeder(sys.stdout)  # 写到控制台
 crawler.write_to_file()
 
-# 优化：拆分“抓取帖子列表”和“将帖子列表写入文件”两种职责类
+# 优化：拆分“抓取帖子列表” PostsWriter(fp=sys.stdout, title='XXX')和“将帖子列表写入文件” HNTopPostsSpider(limit=5)两种职责类
 """
 
 
@@ -181,12 +187,12 @@ class HNTopPostsSpider:
                 counter += 1
                 yield post
 
-    # 需要被继承修改
+    # a.需要被继承修改
     def interested_in_post(self, post: Post) -> bool:
         """判断是否应该将帖子加入结果集中"""
         return True
 
-# 创建过滤子类
+# a.创建过滤子类
 class GithubOnlyHNTopPostsSpider(HNTopPostsSpider):
     """只关心来自 GitHub 的内容"""
 
@@ -194,7 +200,7 @@ class GithubOnlyHNTopPostsSpider(HNTopPostsSpider):
         parsed_link = parse.urlparse(post.link)
         return parsed_link.netloc == 'github.com'
 
-# 执行
+# a.执行
 def get_hn_top_posts(fp: Optional[TextIO] = None):
     """获取 Hacker News Top 内容，并将其写入文件中
     :param fp: 需要写入的文件，如未提供，将向标准输出打印
@@ -205,7 +211,7 @@ def get_hn_top_posts(fp: Optional[TextIO] = None):
     writer = PostsWriter(dest_fp, title='Top news on HN')
     writer.write(list(crawler.fetch()))
 
-get_hn_top_posts()
+# get_hn_top_posts()
 
 
 # b.依赖注入：创建过滤类
@@ -261,6 +267,8 @@ class HNTopPostsSpider:
                 counter += 1
                 yield post
 
-# 执行
-crawler = HNTopPostsSpider()
-crawler = HNTopPostsSpider(post_filter=GithubPostFilter())
+# b.执行
+# crawler = HNTopPostsSpider()  # 默认不传post_filter参数不过滤
+crawler = HNTopPostsSpider(post_filter=GithubPostFilter())  # 过滤Github
+writer = PostsWriter(sys.stdout, title='Top news on HN')
+writer.write(list(crawler.fetch()))

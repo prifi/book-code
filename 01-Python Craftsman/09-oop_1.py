@@ -26,7 +26,7 @@
 
 继承：
     - 多用组合，少用继承
-    - 多重继承与 MRO: D.mro() ---广度优先
+    - 多重继承与 MRO: D.mro() ---广度优先，super()重写mro链条中的上一个类
     - 针对事物的行为建模，而不是对事物本身建模
         1.读取日志
         2.解析日志
@@ -36,11 +36,11 @@
                 self.log_reader = LogReader(self.date)
                 self.log_parser = LogParser()
     - 继承是一种紧耦合关系，继承时应考虑：
-        1.子继承父，是否是同类型(int? list?)？
+        1.子继承父，是否是同类型？ ---(int? list?)
         2.是否需要继承来表明类型关系？ ---鸭子类型
         3.子类只是复用父类方法，组合替代继承是否会更好？
 
-预绑定方法模式（prebound method pattern）是一种将对象方法绑定为函数的模式
+预绑定方法模式（prebound method pattern）是一种将对象方法绑定为函数的模式 _config = AppConfig()
 
 """
 
@@ -116,6 +116,7 @@ class AppConfig:
 _config = AppConfig()
 get_database_conf = _config.get_database
 reload_config = _config.reload
+# 第三方引用
 # from config import get_database_conf
 # data_conf = get_database_conf()
 # reload_config()
