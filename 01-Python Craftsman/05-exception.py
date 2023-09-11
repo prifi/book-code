@@ -14,26 +14,30 @@
     4.try/except .. else
         - 没有发生异常执行else，替换标记变量flag
         - 与finally不同，如果提前return或break，else语句不会执行
-    5.自定义异常类：抛出异常，而不是返回错误
+    5.自定义异常类：抛出(raise)异常，而不是返回错误
         class CreateItemError(Exception):
-    6.使用上下文管理器(with)处理异常
+            '''创建 Item 失败'''
+        raise CreateItemError('items is full')
+    6.使用上下文管理器(with)简化异常处理  ---示例2、3、4
         - 用于替代 finally 语句清理资源
         - 对异常二次处理后重新抛出 或 忽略异常
         - 使用 contextmanager 装饰器 yield
 
 编程建议
-    1.不要随意忽略异常
+    1.不要随意忽略异常，针对异常的最佳实践
         - 在 except 语句捕获并处理
         - 在 except 语句捕获，将错误通知终端用户，中断执行
         - 在 except 语句捕获，通过日志记录下这个异常
         - 不捕获异常，让异常往堆栈上层走
-        “除非有意静默，否则不要无故忽视异常。”
-    2.不要手动做数据校验，专业的数据校验模块：pydantic 库校验
+        
+        ！“除非有意静默，否则不要无故忽视异常。”
+        
+    2.不要手动做数据校验，专业的数据校验模块：pydantic 库校验  ---示例5
         from pydantic import BaseModel
         class NumberInput(BaseModel):
             # 使用类型注解 conint 定义 number 属性的取值范围
             number: conint(ge=0, le=100)
-    3.抛出可区分的异常：自定义异常子类或者异常代码(error_code)
+    3.抛出可区分的异常：自定义异常子类或者异常代码(error_code) ---示例1.1
     4.使用“空对象模式”捕获异常并处理：创建空对象实例 NullUserPoint()
         class NullUserPoint:
             # 一个空的用户得分记录
@@ -42,17 +46,25 @@
             
             def is_qualified(self):
                 return False
+
+常见异常
+    KeyboardInterrupt       Ctrl+C中断脚本异常
+    TypeError               类型异常
+    ValueError              值异常
+    AttributeError          属性异常
+    RequestException        requests请求异常
+    IOError                 文件写入异常
 """
 
 # 1.自定义异常类：抛出异常，而不是返回错误
 class CreateItemError(Exception):
     """创建 Item 失败"""
 
-# 异常子类
+# 1.1 异常子类
 class CreateErrorItemsFull(CreateItemError):
     """当前 Item 容器已满"""
 
-# 异常代码：根据异常对象的 error_code 来精确分辨异常类型
+# 1.1 异常代码：根据异常对象的 error_code 来精确分辨异常类型
 '''
 class CreateItemError(Exception):
     """创建 Item 失败
@@ -78,8 +90,8 @@ def create_item(name):
     if len(name) > MAX_LENGTH_OF_NAME:
         raise CreateItemError('name of item is too long')
     if len(get_current_items()) > MAX_ITEMS_QUOTA:
-        # raise CreateItemError('items is full')
-        raise CreateErrorItemsFull('items is full')
+        # raise CreateItemError('items is full')      # 抛出父类异常
+        raise CreateErrorItemsFull('items is full')   # 抛出子类异常，更精确
     return Item(name=name), ''
 
 def create_from_input():

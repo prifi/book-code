@@ -31,14 +31,15 @@
         - 继承 MutableMapping 可以方便地创建自定义字典类，封装处理逻辑
     
 列表
-    1.有序可变
+    1.有序、可变
     2.头部插入 collections.deque
     3.不要在遍历列表时同时修改
 
 元组
-    1.有序不可变
+    1.有序、不可变
     2.具名元组，比用普通数字（rect[0]）更易读、更好记
         from collections import namedtuple
+        Rectangle = namedtuple('Rectangle', 'width,height')  # == namedtuple('Rectangle', ['width', 'height'])
         rect = Rectangle(width=100, height=20)  # rect[0]、rect.width
     3.让函数返回 NameTuple，便于后续扩展
         from typing import NamedTuple
@@ -46,7 +47,7 @@
             country: str
         # addr.country
 字典
-    1.录入序可变，key可哈希，唯一性
+    1.录入序、可变，key可哈希，唯一性
         from collections import OrderedDict # 无序的OrderedDict相比返回False, 无序dict返回True
     2.常用操作：
         dict.get(key, default) 
@@ -56,7 +57,7 @@
     4.不要在遍历字典时同时删除key
     
 集合
-    1.无序可变，key可哈希，去重
+    1.无序、可变，key可哈希，去重
     2.集合运算：
         & s1.intersection(s2)
         | s1.unicon(s2)

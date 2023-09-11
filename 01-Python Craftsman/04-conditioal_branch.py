@@ -10,18 +10,20 @@
 条件判断
     1.布尔值为假：''、None、0、False、[]、()、{}、set()、frozenset()
     2.布尔值为真：非 0 的数值、True，非空的序列、元组、字典，用户定义的类和实例
-    3.三元表达式保持代码简洁 1 or 2（注意 or 陷阱： or None? 0?）
-    4.仅在需要判断某个对象是否是 None、True、False 时，使用 is 运算符
+    3.三元表达式保持代码简洁，语法：true_value if <expression> else false_value（注意 or 陷阱： or None? 0?）
+    4.仅在需要判断某个对象是否是 None、True、False 时，使用 is 运算符比较
     5.and 优先级 高于 or，使用括号让逻辑更清晰
-    6.定义 __len__ 和 __bool__ 魔法方法，可以自定义对象的布尔值规则
-    7.定义 __eq__ 方法，可以修改对象在进行 == 运算时的行为
+    6.定义 __len__ (len(users)) 和 __bool__ (bool(ScoreJudger(59))) 魔法方法，可以自定义对象的布尔值规则。同时定义，优先使用bool 
+    7.定义 __eq__ 方法，可以修改对象在进行 == 运算时的行为。is 判断内存地址，无法被重载
+    
+    ！整型驻留技术，-5 到 256 缓存内存数组，id(100) is id(200)，id(6300) is not id(6300)
     
 条件分支
     1.“扁平优于嵌套” 要竭尽所能地避免分支嵌套，提前 return 返回
     2.别写太复杂的条件表达式，封装成函数或者对应的类方法
     3.尽量降低分支内代码的相似性，便于理解
     4.使用 all()/any() 函数构建条件表达式 all(n > 10 for n in numbers)
-    5.bisect 模块可以用来优化范围类分支判断
+    5.“直译” 转 “意译”，bisect 模块可以用来优化范围类分支判断
         import bisect
         breakpoints = [10, 20, 30]
         bisect.bisect(breakpoints, 1)  # 0 -> 位于10之前，返回索引0

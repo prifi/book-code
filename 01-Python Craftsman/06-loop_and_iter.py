@@ -8,7 +8,7 @@
 
 """
 迭代器与可迭代对象
-    1.iter() 与 next()
+    1.iter() 与 next()，for 循环的工作原理
         iterator = iter(names)
         while True:
             try:
@@ -20,9 +20,9 @@
         - 可迭代对象不一定是迭代器，但迭代器一定是可迭代对象
         - 对可迭代对象使用 iter() 会返回迭代器，迭代器则会返回其自身
         - 每个迭代器的被迭代过程是一次性的，可迭代对象则不一定
-        - 可迭代对象只需要实现 __iter__ 方法，而迭代器要额外实现 __next__ 方法
+        - 可迭代对象只需要实现 __iter__ 方法，而迭代器要额外实现 __next__ 方法 ---示例1
     3.生成器是迭代器：一种简化的迭代器实现 yield
-        - 通过修饰可迭代对象来优化循环: enumerate() 函数的思路
+        - 通过修饰可迭代对象来优化循环: enumerate() 函数的思路  ---示例2
     4.使用 itertools 模块优化循环
         - 遍历多个对象的多层循环代码，使用 product() 函数优化
             from itertools import product
@@ -34,17 +34,21 @@
                  yield line.strip()
         - 使用 takewhile() 替代 break 语句：提前结束循环
             from itertools import takewhile
-            takewhile(predicate, iterable)  # 调用 predicate() 对 iterable 元素做真值测试，False中断
+            takewhile(predicate, iterable)  # 调用 predicate() 对 iterable 元素做真值测试，False中断本次迭代
             
             # 示例
-            for user in takewhile(is_qualified, users):
+            for user in takewhile(is_qualified, users):  # 多参数可以使用偏函数
                 # 进行处理……
         - 用 chain() 函数可以扁平化双层嵌套循环、用 zip_longest() 函数可以同时遍历多个对象，等等。
-    5.(for/while)循环语句的 else 关键字 ---正常循环完没有碰到任何break，执行else（提前return不执行else）
+    5.(for/while)循环语句的 else 关键字 ---正常循环完没有碰到任何break，执行else（提前return不执行else）  ---示例4
         ! “拆分子函数”的技巧来重构
     6.使用 while 循环加 read() 方法分块读取大文件内容
-    7.iter() 的另一个用法: iter(_read, '')
+    7.iter() 的另一个用法 ---示例5
         - iter(callable, sentinel) 用循环遍历这个迭代器，会不断返回调用 callable() 的结果，假如结果等于sentinel，迭代过程中止
+            # 使用 functools.partial 构造一个新的无须参数的函数
+            _read = partial(fp.read, block_size)
+            iter(_read, '')
+        - 拆分 “数据生成” 和 “数据消费” 逻辑 yield
 
 编程建议
     1.循环过于复杂？ ---按职责分类，抽象成独立的生成器（或迭代器）
